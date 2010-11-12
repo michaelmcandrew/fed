@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.2                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -28,7 +28,7 @@
       <td colspan="2">
         {$form.address.$blockId.name.label}<br />
         {$form.address.$blockId.name.html}<br />
-        <span class="description font-italic">{ts}For <b>Farm Garden</b> projects, this field should contain the name of the main contact. {/ts}</span>
+        <span class="description font-italic">{ts}For <b>Farm Garden</b> projects, this field should contain the name of the main contact.{/ts}</span>
       </td>
   </tr>
 {/if}
