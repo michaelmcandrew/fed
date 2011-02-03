@@ -1,7 +1,7 @@
 <?php
 
-define('CURRENT_MEMBER_DATA_TABLE', 'civicrm_value_current_member_9');
-define('CURRENT_MEMBER_DATA_FIELD', 'current_member_81');
+define('CURRENT_MEMBER_DATA_TABLE', 'civicrm_value_current_member_10');
+define('CURRENT_MEMBER_DATA_FIELD', 'current_member_87');
 
 function joomla_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
 	if($op!='create' && $op!='edit'){
