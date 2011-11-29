@@ -7,12 +7,10 @@ function joomla_civicrm_post( $op, $objectName, $objectId, &$objectRef ) {
 	
 	if($objectName=='Organization') {
 		update_current_member_data_field($objectId);
+		return;
 	}
 	
 
-	if($op!='create' && $op!='edit') {
-		return;
-	}
 	$query="SELECT contact_id FROM `civicrm_membership` WHERE id ={$objectId}";
 	$result = CRM_Core_DAO::executeQuery( $query );
 	$result->fetch();
@@ -27,6 +25,7 @@ function update_current_member_data_field($contactId) {
 	$params = array(
 		'contact_id' => $contactId
 	);
+
 	$membership = civicrm_membership_contact_get($params);
 	$membership=current($membership[$contactId]);
 	$msi=$membership['status_id'];
@@ -40,15 +39,14 @@ function update_current_member_data_field($contactId) {
 	} else {
 		$current = 0;
 	}
-	
 	if ($mti==6){
-		$current = 1;
+		$current = 0;
 	} 
-	
 	$mti=$membership['membership_type_id'];
-	
-	$query="REPLACE INTO civicrm_value_current_member_10 SET `entity_id`={$contactId}, current_member_87={$current}";
-	$updateResult = CRM_Core_DAO::executeQuery( $query, $params );
+	if(strlen($contactId)){
+		$query="REPLACE INTO civicrm_value_current_member_10 SET `entity_id`={$contactId}, current_member_87={$current}";
+		$updateResult = CRM_Core_DAO::executeQuery( $query, $params );		
+	}
 }
 
 
@@ -63,6 +61,6 @@ function batch_update_current_member_data_field(){
 }
 
 // Uncomment line below to batch update all contacts on next Joomla access
-//batch_update_current_member_data();
+//update_current_member_data_field();
 
 ?>
