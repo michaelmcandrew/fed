@@ -43,10 +43,9 @@ function update_current_member_data_field($contactId) {
 		$current = 0;
 	} 
 	$mti=$membership['membership_type_id'];
-	if(strlen($contactId)){
-		$query="REPLACE INTO civicrm_value_current_member_10 SET `entity_id`={$contactId}, current_member_87={$current}";
-		$updateResult = CRM_Core_DAO::executeQuery( $query, $params );		
-	}
+
+	$query="REPLACE INTO civicrm_value_current_member_10 SET `entity_id`={$contactId}, current_member_87={$current}";
+	$updateResult = CRM_Core_DAO::executeQuery( $query, $params );		
 }
 
 
@@ -61,6 +60,6 @@ function batch_update_current_member_data_field(){
 }
 
 // Uncomment line below to batch update all contacts on next Joomla access
-//update_current_member_data_field();
+//batch_update_current_member_data_field();
 
 ?>
