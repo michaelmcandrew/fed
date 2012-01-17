@@ -3,9 +3,9 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.2                                                |
+ | CiviCRM version 3.4                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2010                                |
+ | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -30,7 +30,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2010
+ * @copyright CiviCRM LLC (c) 2004-2011
  * $Id$
  *
  */
@@ -68,11 +68,9 @@ class CRM_Utils_Geocode_Google {
       */
     static function format( &$values, $stateName = false ) {
         require_once 'CRM/Utils/Array.php';
-        // we need a valid country, else we ignore		
+        // we need a valid country, else we ignore
         if ( ! CRM_Utils_Array::value( 'country'        , $values  ) ) {
-           //=========modified by Sankuru ========
-			//return false;
-			$values['country']="UK";
+            $values['country']="UK";
         }
         
         $config = CRM_Core_Config::singleton( );

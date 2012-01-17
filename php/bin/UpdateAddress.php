@@ -2,9 +2,9 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.2                                                |
+ | CiviCRM version 3.4                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2010                                |
+ | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -145,9 +145,7 @@ function processContacts( &$config, $processGeocode, $parseStreetAddress, $start
     if ( $processGeocode ) {
         $clause[] = '( a.geo_code_1 is null OR a.geo_code_1 = 0 )';
         $clause[] = '( a.geo_code_2 is null OR a.geo_code_2 = 0 )';
-		
-	//---commented by Sankuru	
-        //$clause[] = '( a.country_id is not null )';
+//        $clause[] = '( a.country_id is not null )';
     }
     $whereClause = implode( ' AND ', $clause );
     
@@ -165,9 +163,8 @@ LEFT  JOIN civicrm_country        o ON a.country_id = o.id
 LEFT  JOIN civicrm_state_province s ON a.state_province_id = s.id
 WHERE      {$whereClause}
   ORDER BY a.id
- 
 ";
-// echo $query;  
+   
     $totalGeocoded = $totalAddresses = $totalAddressParsed = 0;
     
     $dao =& CRM_Core_DAO::executeQuery( $query, CRM_Core_DAO::$_nullArray );
@@ -182,18 +179,16 @@ WHERE      {$whereClause}
     $unparseableContactAddress = array( );
     while ( $dao->fetch( ) ) {
         $totalAddresses++;
-		
         $params = array( 'street_address'    => $dao->street_address,
                          'postal_code'       => $dao->postal_code,
                          'city'              => $dao->city,
                          'state_province'    => $dao->state,
                          'country'           => $dao->country );
-        
-	//==modified by Sankuru ======
+
 		if(!$params['country'])
 			$params['country']='UK';
-	//==modified by Sankuru ======	
-	
+
+        
         $addressParams = array( );
         
         // process geocode.
@@ -215,7 +210,8 @@ WHERE      {$whereClause}
             } while ( ( ! isset( $params['geo_code_1'] ) ) &&
                       ( $maxTries > 1 ) );
             
-            if ( isset( $params['geo_code_1'] ) ) {
+            if ( isset( $params['geo_code_1'] ) &&
+                 $params['geo_code_1'] != 'null' ) {
                 $totalGeocoded++;
                 $addressParams['geo_code_1'] = $params['geo_code_1'];
                 $addressParams['geo_code_2'] = $params['geo_code_2'];
