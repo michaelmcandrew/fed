@@ -1,10 +1,10 @@
 <?php
-// MM HELD BACK
+
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.2                                                |
+ | CiviCRM version 3.4                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2010                                |
+ | Copyright CiviCRM LLC (c) 2004-2011                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -29,7 +29,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2010
+ * @copyright CiviCRM LLC (c) 2004-2011
  * $Id$
  *
  */
@@ -76,13 +76,33 @@ class CRM_Profile_Page_View extends CRM_Core_Page
         }
         $this->assign( 'cid', $this->_id );
 
-        $this->_gid = CRM_Utils_Request::retrieve('gid', 'Positive',
-                                                  $this);
+        $gids = explode( ',', CRM_Utils_Request::retrieve('gid', 'String', CRM_Core_DAO::$_nullObject, false, 0, 'GET') );
+        
+        $profileIds = array( );
+        if ( count( $gids ) > 1 ) {
+            if ( !empty( $gids ) ) {
+                foreach( $gids as $pfId  ) {
+                   $profileIds[ ] = CRM_Utils_Type::escape( $pfId, 'Positive' ); 
+                }
+            }
+            
+            // check if we are rendering mixed profiles
+            require_once 'CRM/Core/BAO/UFGroup.php';
+            if ( CRM_Core_BAO_UFGroup::checkForMixProfiles( $profileIds ) ) {
+                CRM_Core_Error::fatal( ts( 'You cannot combine profiles of multiple types.' ) );
+            } 
+
+            $this->_gid = $profileIds[0];
+        }
+        
+        if ( !$this->_gid ) {
+           $this->_gid = CRM_Utils_Request::retrieve('gid', 'Positive', $this, false, 0, 'GET');
+        } 
         
         $anyContent = true;
         if ($this->_gid) {
             require_once 'CRM/Profile/Page/Dynamic.php';
-            $page = new CRM_Profile_Page_Dynamic($this->_id, $this->_gid, 'Profile' );
+            $page = new CRM_Profile_Page_Dynamic($this->_id, $this->_gid, 'Profile', false, $profileIds );
             $profileGroup            = array( );
             $profileGroup['title']   = null;
             $profileGroup['content'] = $page->run();
@@ -90,17 +110,23 @@ class CRM_Profile_Page_View extends CRM_Core_Page
                 $anyContent = false;
             }
             $profileGroups[]         = $profileGroup;
+            
+            $gidString = $this->_gid;
+            if ( !empty( $profileIds ) ) {
+                $gidString = implode( ',', $profileIds );
+            }
+
             $map = CRM_Core_DAO::getFieldValue( 'CRM_Core_DAO_UFGroup', $this->_gid, 'is_map' );
             if ( $map ) {
                 $this->assign( 'mapURL',
                                CRM_Utils_System::url( "civicrm/profile/map",
-                                                      "reset=1&pv=1&cid={$this->_id}&gid={$this->_gid}" ) );
+                                                      "reset=1&pv=1&cid={$this->_id}&gid={$gidString}" ) );
             }
             if ( CRM_Core_Permission::ufGroupValid( $this->_gid,
                                                     CRM_Core_Permission::SEARCH ) ) {
                 $this->assign( 'listingURL',
                                CRM_Utils_System::url( "civicrm/profile",
-                                                      "force=1&gid={$this->_gid}" ) );
+                                                      "force=1&gid={$gidString}" ) );
             }
         } else {
             require_once 'CRM/Core/BAO/UFGroup.php';
@@ -109,7 +135,7 @@ class CRM_Profile_Page_View extends CRM_Core_Page
             $profileGroups = array();
             foreach ($ufGroups as $groupid => $group) {
                 require_once 'CRM/Profile/Page/Dynamic.php';
-                $page = new CRM_Profile_Page_Dynamic( $this->_id, $groupid, 'Profile');
+                $page = new CRM_Profile_Page_Dynamic( $this->_id, $groupid, 'Profile', false, $profileIds );
                 $profileGroup = array( );
                 $profileGroup['title'] = $group['title'];
                 $profileGroup['content'] = $page->run();
@@ -122,8 +148,6 @@ class CRM_Profile_Page_View extends CRM_Core_Page
                            CRM_Utils_System::url( "civicrm/profile",
                                                   "force=1" ) );
         }
-           
-	//======= sankuru hack =======		
 		$map_redirect = (int)CRM_Utils_Array::value( 'map_redirect', $_REQUEST,0 );
 		$return_url = CRM_Utils_Array::value( 'return_url', $_REQUEST );
 		if($map_redirect)
@@ -134,10 +158,10 @@ class CRM_Profile_Page_View extends CRM_Core_Page
 				$this->assign( 'listingURL',$return_url );
 			}
 			else
-				$this->assign( 'listingURL',"javascript:history.back()" );
+			$this->assign( 'listingURL',"javascript:history.back()" );
 		}
-    //===== end=========  
 	   
+			   
         $this->assign( 'groupID', $this->_gid );
 
         $this->assign('profileGroups', $profileGroups);
@@ -170,6 +194,15 @@ class CRM_Profile_Page_View extends CRM_Core_Page
             $template     =& CRM_Core_Page::getTemplate( );
             if ( $template->template_exists( $templateFile ) ) {
                 return $templateFile;
+            }
+
+            // lets see if we have customized by name
+            $ufGroupName = CRM_Core_DAO::getFieldValue( 'CRM_Core_DAO_UFGroup', $this->_gid, 'name' );
+            if ( $ufGroupName ) {
+                $templateFile = "CRM/Profile/Page/{$ufGroupName}/View.tpl";
+                if ( $template->template_exists( $templateFile ) ) {
+                    return $templateFile;
+                }
             }
         }
         return parent::getTemplateFileName( );
