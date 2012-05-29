@@ -52,7 +52,7 @@ function update_current_member_data_field($contactId) {
 
 function batch_update_current_member_data_field(){
 	$query="SELECT contact_id FROM `civicrm_membership`";
-	$result = CRM_Core_DAO::executeQuery( $query );
+  $result = CRM_Core_DAO::executeQuery( $query );
 	while($result->fetch()){
 		update_current_member_data_field($result->contact_id);
 	}
@@ -60,6 +60,8 @@ function batch_update_current_member_data_field(){
 }
 
 // Uncomment line below to batch update all contacts on next Joomla access
-//batch_update_current_member_data_field();
-
+$number=rand(1,300);
+if($number==7){
+  batch_update_current_member_data_field();
+}
 ?>
