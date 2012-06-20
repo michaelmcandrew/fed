@@ -1,0 +1,6 @@
+#crm-container div.description, 
+#crm-container span.description {
+	margin: 15px 0 -10px 16% !important;
+	font-size: 1.2em;
+}
+
